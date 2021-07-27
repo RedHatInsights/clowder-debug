@@ -1,0 +1,42 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: clowder-debug
+parameters:
+- name: SECRET_NAME
+  required: true
+- name: IMAGE
+  value: quay.io/klape/clowder-debug
+- name: IMAGE_TAG
+  value: latest
+objects:
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    name: clowder-debug
+  spec:
+    containers:
+    - name: clowder-debug
+      env:
+      - name: ACG_CONFIG
+        value: /cdapp/cdappconfig.json
+      image: ${IMAGE}:${IMAGE_TAG}
+      imagePullPolicy: IfNotPresent
+      stdin: true
+      stdinOnce: true
+      tty: true
+      resources:
+        limits:
+          cpu: 100m
+          memory: 512Mi
+        requests:
+          cpu: 100m
+          memory: 256Mi
+      volumeMounts:
+      - mountPath: /cdapp/
+        name: config-secret
+    volumes:
+    - name: config-secret
+      secret:
+        defaultMode: 420
+        secretName: ${SECRET_NAME}
