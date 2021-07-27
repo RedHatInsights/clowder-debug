@@ -9,11 +9,13 @@ parameters:
   value: quay.io/klape/clowder-debug
 - name: IMAGE_TAG
   value: latest
+- name: POD_NAME
+  value: clowder-debug
 objects:
 - apiVersion: v1
   kind: Pod
   metadata:
-    name: clowder-debug
+    name: ${POD_NAME}
   spec:
     containers:
     - name: clowder-debug

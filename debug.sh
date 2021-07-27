@@ -5,6 +5,8 @@ if [[ "$1" == "" ]]; then
     exit 1
 fi
 
+pod_name="clowder-debug-$(uuid | cut -f 1 -d -)"
+
 oc get secret $1 > /dev/null 2> /dev/null
 
 if [[ $? != 0 ]]; then
@@ -12,13 +14,16 @@ if [[ $? != 0 ]]; then
     exit 1
 fi
 
-oc process --local -f pod.yml -p SECRET_NAME=$1 -p IMAGE_TAG=$(git rev-parse --short=7 HEAD) | oc create -f -
+oc process --local -f pod.yml -p POD_NAME=$pod_name -p SECRET_NAME=$1 -p IMAGE_TAG=$(git rev-parse --short=7 HEAD) | oc create -f -
 
 echo Waiting for pod to become ready...
-while [[ "$(oc get pod clowder-debug -o json | jq -r '.status.phase')" != "Running" ]]; do
+while [[ "$(oc get pod $pod_name -o json | jq -r '.status.phase')" != "Running" ]]; do
     sleep 2
 done
 
-oc attach -it clowder-debug
+oc exec -it $pod_name -- /usr/bin/bash
 
-oc delete pod clowder-debug
+echo Dumping psql log to $pod_name-psql-history.log
+oc exec $pod_name -- cat /tmp/db_output.txt > $pod_name-psql-history.log
+
+oc delete pod $pod_name
