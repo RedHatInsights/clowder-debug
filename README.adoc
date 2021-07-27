@@ -1,0 +1,7 @@
+= Clowder Debug Pod
+
+This has common debugging tools for SREs to help with clowder apps.
+
+Included is a debug script that will spin up a pod with a mounted ACG_CONFIG.
+You can then easily run `app-common-bash` in the pod to load the config into environment variables.
+Alternatively you can run `jq` commands against `$ACG_CONFIG` to extract config data.

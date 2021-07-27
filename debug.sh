@@ -12,7 +12,7 @@ if [[ $? != 0 ]]; then
     exit 1
 fi
 
-oc process --local -f pod.yml -p SECRET_NAME=$1 | oc create -f -
+oc process --local -f pod.yml -p SECRET_NAME=$1 -p IMAGE_TAG=$(git rev-parse --short=7 HEAD) | oc create -f -
 
 echo Waiting for pod to become ready...
 while [[ "$(oc get pod clowder-debug -o json | jq -r '.status.phase')" != "Running" ]]; do
